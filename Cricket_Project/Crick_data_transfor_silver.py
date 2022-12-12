@@ -1,9 +1,9 @@
 # Databricks notebook source
-# MAGIC %run /Users/Saravana_admin@5njbxz.onmicrosoft.com/Cricket_Project/Crick_proj_config
+# MAGIC %run ./Crick_proj_config
 
 # COMMAND ----------
 
-Crick_brnz_raw_df = spark.sql("select * from Brnze_cric_dl_db.brnz_cric_tbl")
+Crick_brnz_raw_df_1 = spark.read.format("delta").load("dbfs:/user/hive/warehouse/brnze_cric_dl_db.db/brnz_cric_tbl")
 
 # COMMAND ----------
 
@@ -30,6 +30,7 @@ Col_div_df = crick_info_renamecols_df.groupby(['Match_id'])\
                             .select("Match_id",col("umpires")[0].alias("umpire_1"),col("umpires")[1].alias("umpire_2"),col("teams_t")[0].alias("Team_A"),col("teams_t")[1].alias("Team_B"))         
 
 crick_info_final_df = crick_info_renamecols_df.join(Col_div_df,on=['Match_id'],how="inner")\
+                                        .withColumn("season",year(col("dates")))\
                                         .drop("officials_umpires","teams")\
                                         .dropDuplicates()
 
@@ -56,3 +57,26 @@ crick_join_df = crick_innings_final_df.join(crick_info_final_df,on=['Match_id'],
 # COMMAND ----------
 
 crick_filled_df = crick_join_df.na.fill({ 'extras_byes':0, 'extras_legbyes':0,'extras_noballs':0,'extras_penalty':0,'extras_wides':0,'event_stage':"League" })
+
+# COMMAND ----------
+
+display(crick_filled_df)
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC --creating the database
+# MAGIC CREATE database if not exists  Silver_cric_dl_db
+
+# COMMAND ----------
+
+crick_filled_df.write.partitionBy("season").format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("Silver_cric_dl_db.Silver_cric_tbl")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC DESC DATABASE Silver_cric_dl_db
+
+# COMMAND ----------
+
+

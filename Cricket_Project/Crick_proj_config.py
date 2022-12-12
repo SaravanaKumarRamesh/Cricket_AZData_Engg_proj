@@ -19,7 +19,7 @@ test_Data = "/mnt/raw/IPL_2008_data"
 Prod_data = "/mnt/raw/Cricsheet_data"
 Sample_data = "/mnt/raw/IPL_2008_data/335982.json"
 prod_delta = "/mnt/processed/Cricket_delta_prod"
-sample_delta = "/mnt/processed/Cricket_delta"
+sample_Sil_delta = "/mnt/processed/Cricket_delta_Silver"
 
 # COMMAND ----------
 

@@ -1,5 +1,5 @@
 # Databricks notebook source
-# MAGIC %run /Users/Saravana_admin@5njbxz.onmicrosoft.com/Cricket_Project/Crick_proj_config
+# MAGIC %run ./Crick_proj_config
 
 # COMMAND ----------
 
@@ -19,13 +19,22 @@ crick_flatten_fin_df = crick_flatten_df.toDF(*new_column_names_inn)\
 
 # COMMAND ----------
 
+crick_flatten_repar_df = crick_flatten_fin_df.repartition(16)
+
+# COMMAND ----------
+
 # MAGIC %sql
 # MAGIC --creating the database
 # MAGIC CREATE database if not exists  Brnze_cric_dl_db
 
 # COMMAND ----------
 
-crick_flatten_fin_df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("Brnze_cric_dl_db.brnz_cric_tbl")
+# MAGIC %sql
+# MAGIC desc DATABASE Brnze_cric_dl_db
+
+# COMMAND ----------
+
+crick_flatten_repar_df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("Brnze_cric_dl_db.brnz_cric_tbl")
 
 # COMMAND ----------
 
@@ -34,4 +43,4 @@ crick_flatten_fin_df.write.format("delta").mode("overwrite").option("overwriteSc
 
 # COMMAND ----------
 
-
+dbutils.fs.ls()
